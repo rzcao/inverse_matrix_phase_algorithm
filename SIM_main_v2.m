@@ -43,7 +43,7 @@ end
 [xsize,ysize]=size(noiseimage(:,:,1,1));
 [Y,X]=meshgrid(1:ysize,1:xsize);
 
-PSF_edge = fspecial('gaussian',6,40);
+PSF_edge = fspecial('gaussian',5,40);
 for ii=1:a_num
     for jj=1:p_num
         noiseimage(:,:,ii,jj)=edgetaper(noiseimage(:,:,ii,jj),PSF_edge);
@@ -297,7 +297,7 @@ FT_extended_per_angle=sum(ft_true,4);
 FT_extended=sum(FT_extended_per_angle,3);
 reconstructed_im=ifft2(ifftshift(FT_extended));
 reconstructed_im=real(reconstructed_im).*(real(reconstructed_im>0));
-reconstructed_im=deconvlucy(reconstructed_im,psf_n,3);
+reconstructed_im=deconvlucy(reconstructed_im,psf_n,4);
 figure;imagesc(reconstructed_im);colormap(hot);title('SIM');
 
 widefield=deconvlucy(widefield,ipsfde,3);
