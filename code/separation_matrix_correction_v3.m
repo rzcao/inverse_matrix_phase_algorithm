@@ -11,6 +11,7 @@ function [my_phase] = separation_matrix_correction_v3(noiseimagef,precise_shift,
 % "Phase optimisation for structured illumination microscopy," Opt. Express 21, 2032-2049 (2013).
 
 [~,~,a_num,p_num]=size(noiseimagef);
+% [xsize,ysize,a_num,p_num]=size(noiseimagef);
 % [Y,X]=meshgrid(1:ysize,1:xsize);
 % xc=floor(xsize/2+1);
 % yc=floor(ysize/2+1);
@@ -33,6 +34,7 @@ phase_result=zeros(a_num,sep_num);
 tic;
 
 mask=abs(OTF./(OTF+0.1));
+% mask=mask.*n_filt;
 % for ii=1:a_num
 %     for jj=1:p_num
 %         noiseimagef(:,:,ii,jj)=noiseimagef(:,:,ii,jj).*mask;
