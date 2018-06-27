@@ -251,7 +251,6 @@ psf_n=abs(psf_n); %the efficient PSF for SIM without pre-deconvolution
 
 mod_depth_temp=zeros(a_num,3);
 reference=sum(ft_true(:,:,:,1),3);
-temp_n_filt=n_filt.*(n_filt>0.5);
 for ii=1:a_num
     for jj=1:3
         if jj==1
@@ -262,7 +261,7 @@ for ii=1:a_num
             mask_temp=mask_temp./(OTF_de_temp+wiener_factor^2);
             %without pre-deconvolution
             
-            mod_depth_temp(ii,jj)=sum(sum(conj(reference).*ft_true(:,:,ii,jj).*temp_n_filt.*mask_temp));
+            mod_depth_temp(ii,jj)=sum(sum(conj(reference).*ft_true(:,:,ii,jj).*mask_temp));
         else
             mod_depth_temp(ii,jj)=sum(sum(conj(reference).*ft_true(:,:,ii,jj)));
         end
