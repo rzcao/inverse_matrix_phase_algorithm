@@ -66,7 +66,6 @@ ifftscalede=numel(ctfde)/ctfdeSignificantPix;
 apsfde=fftshift(ifft2(ifftshift(ctfde)));
 ipsfde=ifftscalede*abs(apsfde).^2;
 OTFde=real(fftshift(fft2(ifftshift(ipsfde))));
-OTF_temp=OTFde;
 clear apsfde ctfde temp X Y
 %% filter/deconvolution before using noiseimage
 widefield=sum(sum(noiseimage,4),3);
@@ -191,20 +190,15 @@ clear noiseimagef
 %% interpolate when necessary
 k_modulation_max=max(sqrt(shiftvalue(:,2,1).^2+shiftvalue(:,2,2).^2));
 if cutoff+k_modulation_max>min([xsize,ysize])/2
-    OTFde=zeros(2*xsize,2*ysize);
-    psf=OTFde;
-    OTFde((xsize-xc+2):(2*xsize-xc+1),(ysize-yc+2):(2*ysize-yc+1))=OTF_temp;
-    psf((xsize-xc+2):(2*xsize-xc+1),(ysize-yc+2):(2*ysize-yc+1))=ipsfde;
     double_re=zeros(2*xsize,2*ysize,a_num,3);
     for ii=1:a_num
         for jj=1:3
             double_re((xsize-xc+2):(2*xsize-xc+1),(ysize-yc+2):(2*ysize-yc+1),ii,jj)=separated_FT(:,:,ii,jj);
         end
     end
-    clear re_f psf_b
+    clear re_f
     separated_FT=double_re;
-    ipsfde=psf;
-    clear double_re psf
+    clear double_re
     xsize=2*xsize;
     ysize=2*ysize;
     widefield=imresize(widefield,2,'bicubic');
@@ -215,14 +209,24 @@ if cutoff+k_modulation_max>min([xsize,ysize])/2
     yr=Y-yc;
     xr=X-xc;
     R=sqrt((xr).^2+(yr).^2);
+    pixelnum=xsize;
+    psize=psize/2;
+    rpixel=NA*pixelnum*psize/lambda;
+    cutoff=round(2*rpixel);% cutoff frequency
+    ctfde=ones(pixelnum,pixelnum).*(R<=rpixel);
+    ctfdeSignificantPix=numel(find(abs(ctfde)>eps(class(ctfde))));
+    ifftscalede=numel(ctfde)/ctfdeSignificantPix;
+    apsfde=fftshift(ifft2(ifftshift(ctfde)));
+    ipsfde=ifftscalede*abs(apsfde).^2;
+    OTFde=real(fftshift(fft2(ifftshift(ipsfde))));
     % generate a notch-filter (n_filt)
     n_filt = 1 - exp(-0.05*R.^1.2);
 end
 clear re0_temp rem_temp rep_temp R X Y xr yr OTF_temp
 
 
-OTFn=zeros(size(OTFde));
-OTF_nb=OTFn;% OTF of reconstruct image
+OTF_n=zeros(size(OTFde));
+OTF_nb=OTF_n;% OTF of reconstruct image
 ft_true=zeros(size(separated_FT));
 OTF_de_temp=abs(fftshift(fft2(ipsfde)));
 OTFcirc=double(OTFde./(wiener_factor^2+OTFde));
@@ -236,17 +240,17 @@ for ii=1:a_num
             ft_true(:,:,ii,jj)=separated_FT(:,:,ii,jj);
         end
 
-        OTFn=circshift(OTF_de_temp,[shiftvalue(ii,jj,1),shiftvalue(ii,jj,2)])+OTFn;
+        OTF_n=circshift(OTF_de_temp,[shiftvalue(ii,jj,1),shiftvalue(ii,jj,2)])+OTF_n;
         OTF_nb=circshift(OTFcirc,[shiftvalue(ii,jj,1),shiftvalue(ii,jj,2)])+OTF_nb;
     end
 end
 clear separated_FT
-OTFn=OTFn./max(max(abs(OTFn)));
+OTF_n=OTF_n./max(max(abs(OTF_n)));
 OTF_nb=OTF_nb./max(max(OTF_nb));
 
 psf_nb=abs(fftshift(fft2(OTF_nb))); %the efficient PSF for SIM with pre-deconvolution
 
-psf_n=fftshift(ifft2(ifftshift(OTFn)));
+psf_n=fftshift(ifft2(ifftshift(OTF_n)));
 psf_n=abs(psf_n); %the efficient PSF for SIM without pre-deconvolution
 
 mod_depth_temp=zeros(a_num,3);
