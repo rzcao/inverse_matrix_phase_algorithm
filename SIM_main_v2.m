@@ -82,7 +82,7 @@ for ii=1:a_num
       noiseimage(:,:,ii,jj)=noiseimage(:,:,ii,jj).*(noiseimage(:,:,ii,jj)>0);
     end
 end
-% noiseimage=quasi_wnr(OTFo,noiseimage,wiener_factor^2);
+% noiseimage=quasi_wnr(OTFde,noiseimage,wiener_factor^2);
 widefield=widefield./max(widefield(:))*max(noiseimage(:));
 
 
