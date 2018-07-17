@@ -10,14 +10,16 @@ function [my_phase] = separation_matrix_correction_v3(noiseimagef,precise_shift,
 % [1] K. Wicker, O. Mandula, G. Best, R. Fiolka, and R. Heintzmann,
 % "Phase optimisation for structured illumination microscopy," Opt. Express 21, 2032-2049 (2013).
 
-[~,~,a_num,p_num]=size(noiseimagef);
-% [xsize,ysize,a_num,p_num]=size(noiseimagef);
-% [Y,X]=meshgrid(1:ysize,1:xsize);
-% xc=floor(xsize/2+1);
-% yc=floor(ysize/2+1);
-% yr=Y-yc;% center of x axis
-% xr=X-xc;% center of y axis
-% n_filt = 1 - exp(-0.01*sqrt(xr.^2+yr.^2).^1.2);
+% tic;
+
+% [~,~,a_num,p_num]=size(noiseimagef);
+[xsize,ysize,a_num,p_num]=size(noiseimagef);
+[Y,X]=meshgrid(1:ysize,1:xsize);
+xc=floor(xsize/2+1);
+yc=floor(ysize/2+1);
+yr=Y-yc;% center of x axis
+xr=X-xc;% center of y axis
+n_filt = 1 - exp(-0.01*sqrt(xr.^2+yr.^2).^1.2);
 mi=0.5;
 
 sep_set=[0,2/3*pi,4/3*pi;
@@ -31,15 +33,13 @@ ref_wide=zeros(a_num,p_num);
 finv=zeros(3,3,sep_num);
 phase_result=zeros(a_num,sep_num);
 
-tic;
-
 mask=abs(OTF./(OTF+0.1));
-% mask=mask.*n_filt;
-% for ii=1:a_num
-%     for jj=1:p_num
-%         noiseimagef(:,:,ii,jj)=noiseimagef(:,:,ii,jj).*mask;
-%     end
-% end
+mask=mask.*n_filt;
+for ii=1:a_num
+    for jj=1:p_num
+        noiseimagef(:,:,ii,jj)=noiseimagef(:,:,ii,jj).*mask;
+    end
+end
 
 % analytical solution
 wide_temp=squeeze(sum(noiseimagef,4)/p_num);
@@ -93,7 +93,7 @@ for ii=1:a_num
     [~,final_ans]=solve_trigonometric_linear_equation_var3(phase_result(ii,:),inv_matrix);
     analytical_phase_ans(ii,:)=real(final_ans');
 end
-run_time_var3=toc;
+% run_time_var3=toc;
 %% inverse matrix based algorithm end
 my_phase=mod(analytical_phase_ans,2*pi);
 
