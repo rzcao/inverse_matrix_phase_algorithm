@@ -2,13 +2,16 @@ function [my_phase] = separation_matrix_correction_v2(noiseimagef,precise_shift,
 % solve the function f(phi1,phi2,phi3)=phase_peak
 % version 2 is typically slower than version 3. But it is easier for others
 % to understand the algorithm using this version.
-[xsize,ysize,a_num,p_num]=size(noiseimagef);
-% [Y,X]=meshgrid(1:ysize,1:xsize);
-% xc=floor(xsize/2+1);
-% yc=floor(ysize/2+1);
-% yr=Y-yc;% center of x axis
-% xr=X-xc;% center of y axis
-% n_filt = 1 - exp(-0.01*sqrt(xr.^2+yr.^2).^1.2);
+
+tic;
+
+xsize,ysize,a_num,p_num]=size(noiseimagef);
+[Y,X]=meshgrid(1:ysize,1:xsize);
+xc=floor(xsize/2+1);
+yc=floor(ysize/2+1);
+yr=Y-yc;% center of x axis
+xr=X-xc;% center of y axis
+n_filt = 1 - exp(-0.01*sqrt(xr.^2+yr.^2).^1.2);
 mi=0.5;
 
 sep_set=[0,2/3*pi,4/3*pi;
@@ -22,13 +25,14 @@ phase_result=zeros(a_num,sep_num);
 re_f=zeros(xsize,ysize,a_num,2);
 f_true=re_f;
 
-mask=abs(OTF.^0.15);
+mask=abs(OTF)/(abs(OTF)+0.1);
+mask=mask.*n_filt;
 for ii=1:a_num
     for jj=1:p_num
         noiseimagef(:,:,ii,jj)=noiseimagef(:,:,ii,jj).*mask;
     end
 end
-tic;
+
 % analytical solution
 wide_temp=squeeze(sum(noiseimagef,4)/p_num);
 wide_temp=squeeze(sum(wide_temp,3)/a_num);
