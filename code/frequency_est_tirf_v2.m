@@ -80,7 +80,7 @@ for ii=1:a_num
 end
 background=background./center_value;% ratio of the background to the peak
 
-for ii=1:3
+for ii=1:a_num
     for jj=2:3
         if background(ii,jj)>0.5
             background(ii,jj)=1.7*background(ii,jj);
