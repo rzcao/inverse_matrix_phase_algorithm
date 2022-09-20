@@ -25,7 +25,7 @@ yr=Y-yc;
 xr=X-xc;
 r_shift=sqrt(relative_pixel(:,1).^2+relative_pixel(:,2).^2);
 shift_angle=zeros(num);
-f_r=zeros(num);
+f_r=zeros(num,2);
 for ii=1:num
     if relative_pixel(ii,2)==0
         shift_angle(ii)=pi/2.*sign(relative_pixel(ii,1));
@@ -37,9 +37,10 @@ for ii=1:num
     end
     
     if r_shift(ii)==0
-        f_r(ii)=0;
+        f_r(ii,:)=0;
     else
-        f_r(ii)=xsize./r_shift(ii);
+        f_r(ii,1)=xsize./r_shift(ii);
+        f_r(ii,2)=ysize./r_shift(ii);
     end
     
 end
@@ -53,11 +54,11 @@ else
 end
 shift_im=zeros(final_xsize,final_ysize,num);
 for ii=1:num
-    fr_temp=f_r(ii);
+    fr_temp=f_r(ii,:);
     if fr_temp~=0
         my_angle=shift_angle(ii);
         ft=fftshift(fft2(im(:,:,ii)));
-        ft=ft.*exp(-1i*2*pi*(xr.*sin(my_angle)+yr.*cos(my_angle))/fr_temp);
+        ft=ft.*exp(-1i*2*pi*(xr.*sin(my_angle)/fr_temp(1)+yr.*cos(my_angle)/fr_temp(2)));
         temp=ifft2(ifftshift(ft));
         shift_im(:,:,ii)=temp(1:final_xsize,1:final_ysize);
     else
