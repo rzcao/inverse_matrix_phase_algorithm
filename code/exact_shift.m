@@ -24,7 +24,7 @@ while idx <= length(varargin)
             idx = idx+2;
         otherwise
             if isnumeric(varargin{idx})
-                if varargin == 1
+                if varargin{idx} == 1
                     sameSize = true;
                 else
                     sameSize = false;
