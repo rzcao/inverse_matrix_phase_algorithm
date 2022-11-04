@@ -1,9 +1,44 @@
-function [shift_im] = exact_shift(im,relative_pixel,size_flag)
+function [shift_im] = exact_shift(im,relative_pixel,varargin)
 % shift the matrix (subpixel supported)
 % similar to the built-in function: circshift
-%size_flage=1: output_matrix is the same size as the input matrix
 [xsize,ysize,~]=size(im);
-if size_flag==1
+sameSize = true;
+isRealSpace = false;
+
+idx = 1;
+while idx <= length(varargin)
+    switch varargin{idx}
+        case {'FT','ft','fourier','Fourier'}
+            isRealSpace = false;
+            idx = idx+1;
+        case {'real','Real','image','Image'}
+            isRealSpace = true;
+            idx = idx+1;
+        case {'size','Size'}
+            switch varargin{idx+1}
+                case 'same'
+                    sameSize = true;
+                case 'padded'
+                    sameSize = false;
+            end
+            idx = idx+2;
+        otherwise
+            if isnumeric(varargin{idx})
+                if varargin == 1
+                    sameSize = true;
+                else
+                    sameSize = false;
+                end
+                idx = idx+1;
+            else
+                error('Option is not supported.');
+            end
+    end
+            
+end
+
+
+if sameSize
     o_xsize=xsize;
     o_ysize=ysize;
 end
@@ -36,16 +71,14 @@ for ii=1:num
         end
     end
     
-    if r_shift(ii)==0
-        f_r(ii,:)=0;
-    else
+    if r_shift(ii)~=0
         f_r(ii,1)=xsize./r_shift(ii);
         f_r(ii,2)=ysize./r_shift(ii);
     end
     
 end
 
-if size_flag==1
+if sameSize
     final_xsize=o_xsize;
     final_ysize=o_ysize;
 else
@@ -57,9 +90,15 @@ for ii=1:num
     fr_temp=f_r(ii,:);
     if fr_temp~=0
         my_angle=shift_angle(ii);
-        ft=fftshift(fft2(im(:,:,ii)));
-        ft=ft.*exp(-1i*2*pi*(xr.*sin(my_angle)/fr_temp(1)+yr.*cos(my_angle)/fr_temp(2)));
-        temp=ifft2(ifftshift(ft));
+        if isRealSpace
+            ft=fftshift(fft2(im(:,:,ii)));
+            ft=ft.*exp(-1i*2*pi*(xr.*sin(my_angle)/fr_temp(1)+yr.*cos(my_angle)/fr_temp(2)));
+            temp=ifft2(ifftshift(ft));
+        else
+            ft=ifft2(ifftshift(im(:,:,ii)));
+            ft=ft.*exp(1i*2*pi*(xr.*sin(my_angle)/fr_temp(1)+yr.*cos(my_angle)/fr_temp(2)));
+            temp=fftshift(fft2(ft));
+        end
         shift_im(:,:,ii)=temp(1:final_xsize,1:final_ysize);
     else
         shift_im(:,:,ii)=im(1:final_xsize,1:final_ysize,ii);
