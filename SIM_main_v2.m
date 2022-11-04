@@ -5,7 +5,7 @@ close all;
 a_num=4;% number of pattern orientations
 p_num=3;% phase shift times for each pattern orientation
 
-filepath='F:\data\';%replace with your file's path
+filepath=['data',filesep];%replace with your file's path
 filename='1_X';% the names should be 1_X1, 1_X2, ..., 1_X(a_num*p_num) in this case;
 fileformat='tif';
 
@@ -133,7 +133,11 @@ search_range=0.4;%the max radius in the local search algorithm
 [inv_phase] = separation_matrix_correction_v3(noiseimagef,precise_shift,OTFde);
 %% cross-correlation based algorithm
 sigma=0.1;
-[cc_phase]=crosscorrelation_phase_est_SIM(noiseimagef,precise_shift,sigma,OTFde);
+try
+    [cc_phase]=crosscorrelation_phase_est_SIM(noiseimagef,precise_shift,sigma,OTFde);
+catch
+    warning('To use the original cross-correlation phase estimation algorithm, ''minFunc'' is requried. See user_guide.pdf for more info.');
+end
 
 
 %% auto-correlation based algorithm
@@ -150,7 +154,11 @@ end
 
 my_phase_temp=mod(-inv_phase,2*pi);
 my_phase_auto=mod(-auto_phase,2*pi);
-my_phase_cc=mod(cc_phase,2*pi);
+try
+    my_phase_cc=mod(cc_phase,2*pi);
+catch
+    % dummy line
+end
 
 % inv_phase=auto_phase;
 % reconstruct with phases determined by the auto-correlation method
