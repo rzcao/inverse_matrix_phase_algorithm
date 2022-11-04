@@ -1,6 +1,10 @@
 % prototype program for SIM reconstruction using inverse matrix based phase estimaton algorithm
 clear all;
 close all;
+
+%% add path
+addpath('code');
+
 %% read image file
 a_num=4;% number of pattern orientations
 p_num=3;% phase shift times for each pattern orientation
