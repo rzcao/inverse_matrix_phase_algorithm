@@ -2,6 +2,10 @@
 clear all;
 close all;
 
+if ~any(any(contains(struct2cell(ver), 'Image Processing Toolbox')))
+    error('Image processing toolbox is required.');
+end
+
 %% add path
 addpath('code');
 
