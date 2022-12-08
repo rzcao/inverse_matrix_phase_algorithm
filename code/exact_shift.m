@@ -56,8 +56,13 @@ relative_pixel(:,2)=rem(relative_pixel(:,2),ysize);
 [Y,X]=meshgrid(1:ysize,1:xsize);
 xc=floor(xsize/2+1);
 yc=floor(ysize/2+1);
-yr=Y-yc;
-xr=X-xc;
+if isRealSpace
+    yr=Y-yc;
+    xr=X-xc;
+else
+    yr=Y-1;
+    xr=X-1;
+end
 r_shift=sqrt(relative_pixel(:,1).^2+relative_pixel(:,2).^2);
 shift_angle=zeros(num);
 f_r=zeros(num,2);
