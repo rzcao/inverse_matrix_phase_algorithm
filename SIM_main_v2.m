@@ -263,10 +263,10 @@ clear separated_FT
 OTF_n=OTF_n./max(max(abs(OTF_n)));
 OTF_nb=OTF_nb./max(max(OTF_nb));
 
-psf_nb=abs(fftshift(fft2(OTF_nb))); %the efficient PSF for SIM with pre-deconvolution
+psf_nb=abs(fftshift(fft2(OTF_nb))); %the effective PSF for SIM with pre-deconvolution
 
 psf_n=fftshift(ifft2(ifftshift(OTF_n)));
-psf_n=abs(psf_n); %the efficient PSF for SIM without pre-deconvolution
+psf_n=abs(psf_n); %the effective PSF for SIM without pre-deconvolution
 
 mod_depth_temp=zeros(a_num,3);
 reference=sum(ft_true(:,:,:,1),3);
